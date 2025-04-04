@@ -1,2 +1,30 @@
-.venv
+# GitHub specific
+.github/
+.git/
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment files
 .env
+.venv/
+.env.local
+.env.*.local
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+
+__pycache__/
+test.ipynb
