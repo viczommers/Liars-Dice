@@ -56,7 +56,7 @@ app.layout = dbc.Container([
         ], width={'size': 5}),
         dbc.Col([
             dbc.Card([
-                dcc.Graph(id='probability-barplot')
+                dcc.Graph(id='probability-barplot', config={'displayModeBar': False})
             ], body=True, className="p-3 mb-5 bg-light rounded")
         ], width={'size': 7})
     ]),
@@ -65,7 +65,7 @@ app.layout = dbc.Container([
             html.Footer([
                 html.P("Developed by Victor Zommers | ",
                        style={'display': 'inline-block','font-size': '16px'}),
-                html.A("Check out other dashboards", href="https://sites.google.com/view/victor-zommers/",
+                html.A("Check out other dashboards", href="https://github.com/viczommers",
                        style={'display': 'inline-block', 'margin-left': '5px','font-size': '16px'},target="_blank")
             ], style={'text-align': 'left', 'margin-top': '20px'})
         ], width=12)
@@ -98,4 +98,4 @@ def update_probability_and_plot(n, k,checklist_values):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run(debug=False)

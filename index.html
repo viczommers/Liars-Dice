@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=1.0, minimum-scale=0.5">
+    <title>Liar's Dice Probability Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.0.0/math.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        function binomialCoefficient(n, k) {
+            if (k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            let coeff = 1;
+            for (let i = 1; i <= k; i++) {
+                coeff = coeff * (n - i + 1) / i;
+            }
+            return coeff;
+        }
+
+        function binomialProbability(n, k, p) {
+            const binomialCoefficientValue = binomialCoefficient(n, k);
+            const successProbability = Math.pow(p, k);
+            const failureProbability = Math.pow(1 - p, n - k);
+            return binomialCoefficientValue * successProbability * failureProbability;
+        }
+
+        function atLeastKSuccesses(n, k, p) {
+            if (n === null || k === null || k > n) {
+                return 'NA';
+            }
+            let total = 0;
+            for (let i = k; i <= n; i++) {
+                total += binomialProbability(n, i, p);
+            }
+            return total;
+        }
+
+        function updateProbabilityAndPlot() {
+            const n = parseInt(document.getElementById('n-input').value);
+            const k = parseInt(document.getElementById('k-input').value);
+            const checklistValues = document.getElementById('change-p-checklist').checked;
+            const p = checklistValues ? 2 / 6 : 1 / 6;
+
+            if (isNaN(n) || isNaN(k)) {
+                document.getElementById('probability-output').innerHTML = '<div class="alert alert-danger" role="alert">Please enter valid values for n and k</div>';
+                document.getElementById('next-best-move').innerText = '';
+                document.getElementById('independent-probability').innerText = '';
+                return;
+            }
+            if (k > n) {
+                document.getElementById('probability-output').innerHTML = '<div class="alert alert-danger" role="alert">Number of successes cant be greater than number of trials</div>';
+                document.getElementById('next-best-move').innerText = '';
+                document.getElementById('independent-probability').innerText = '';
+                return;
+            }
+
+            const probabilities = [];
+            for (let i = 1; i <= k; i++) {
+                probabilities.push(atLeastKSuccesses(n, i, p));
+            }
+
+            const figure = {
+                x: Array.from({length: k}, (_, i) => i + 1),
+                y: probabilities,
+                type: 'bar'
+            };
+            const layout = {
+                xaxis: {
+                    title: 'k [dice of same face]'
+                },
+                yaxis: {
+                    title: 'Probability'
+                },
+                shapes: [
+                    {
+                        type: 'line', x0: 0, x1: 1, y0: 0.5, y1: 0.5, 
+                        xref: 'paper', yref: 'y', 
+                        line: {color: 'salmon', width: 3, dash: 'dot', opacity: 1}
+                    }
+                ]
+            };
+            Plotly.newPlot('probability-barplot', [figure], layout, { 
+                responsive: true,
+                displayModeBar: false
+            });
+            const probability = atLeastKSuccesses(n, k, p);
+            const nextMove = atLeastKSuccesses(n, k + 1, p);
+            document.getElementById('probability-output').innerText = `Probability of Current Bet: ${probability.toFixed(6)}`;
+            document.getElementById('next-best-move').innerText = `Probability of Next Bet (k+1 quantity raise): ${nextMove.toFixed(6)}`;
+            document.getElementById('independent-probability').innerText = `Where p = ${p.toFixed(3)} is independent probability for each trial (dice roll)`;
+        }
+
+        window.onload = function() {
+            document.getElementById('n-input').addEventListener('input', updateProbabilityAndPlot);
+            document.getElementById('k-input').addEventListener('input', updateProbabilityAndPlot);
+            document.getElementById('change-p-checklist').addEventListener('change', updateProbabilityAndPlot);
+            updateProbabilityAndPlot();
+        };
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .container-fluid {
+            padding: 20px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        .form-check {
+            margin: 15px 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 0;
+        }
+
+        .formula {
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #ffffff;
+            border-radius: 4px;
+        }
+
+        #probability-output,
+        #next-best-move {
+            font-weight: bold;
+        }
+
+        #probability-barplot {
+            min-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h3 class="text-center mb-3">Probability of obtaining at least k successes in n trials</h3>
+                <h3 class="text-center font-weight-lighter mb-3">🎲 Liars Dice: rolling at least k same faces among n dice</h3>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 d-flex flex-column flex-md-row">
+                <div class="col-12 col-md-5 d-flex">
+                    <div class="card p-3 mb-0 flex-fill bg-light">
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="n-input">Number of trials (n):</label>
+                                <input id="n-input" type="number" value="15" class="form-control">
+                                
+                                <label for="k-input">Number of successes (k):</label>
+                                <input id="k-input" type="number" value="7" class="form-control">
+                                
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="change-p-checklist" checked>
+                                    <label class="form-check-label" for="change-p-checklist">1's are wild</label>
+                                </div>
+                                <div id="probability-output" class="mt-3"></div>
+                                <div id="next-best-move" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-7 d-flex">
+                    <div class="card p-3 mb-0 flex-fill bg-light">
+                        <div id="probability-barplot" style="width: 100%; height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card p-3 mb-5 bg-light">
+                    <label>Binomial Probability Formula:</label>
+                    <div class="formula">
+                        \( P(X = k) = \binom{n}{k} p^k (1 - p)^{n-k} \)
+                    </div>
+                    
+                    <label>At Least k Successes Formula:</label>
+                    <div class="formula">
+                        \( P(X \geq k) = \sum_{i=k}^{n} \binom{n}{i} p^i (1 - p)^{n-i} \)
+                    </div>
+                    <div id="independent-probability"></div>
+                    <footer style="display: inline-block;">
+                        Developed by Victor Zommers | 
+                        <a href="https://github.com/viczommers" target="_blank">Check out other dashboards</a>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
+</body>
+</html> 
