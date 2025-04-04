@@ -1,7 +1,7 @@
 # Liars-Dice 🎲
 Calculate binomial probability of a bet in a game of Liars Dice (Perudo).
 This dashboard visually illustrates the exponential decay of probabilities, as bets are raised beyond the expected value of a single die roll. Even though Liars Dice involves imperfect information, players can develop optimal long-run strategies based on aggregate probabilistic outcomes.
----
+
 ABOUT:
 > Liars Dice is a dice rolling game where players make bids on the number of dice with a specific face value that they believe are present among all players' hidden dice. 
 > Each bid affects the probability of the next bid being true or false. The dice have a finite number of sides (typically 6).
